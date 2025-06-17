@@ -11,7 +11,7 @@ namespace CPUFramework
         public static SqlCommand GetSQLCommand(string sprocname)
         {
             SqlCommand cmd = new();
-            using (SqlConnection conn = new SqlConnection(SQLUtility.ConnectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
             {
                 cmd = new(sprocname, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -25,7 +25,7 @@ namespace CPUFramework
         {
             Debug.Print("------------------" + Environment.NewLine +  cmd.CommandText);
             DataTable dt = new();
-            using (SqlConnection conn = new SqlConnection(SQLUtility.ConnectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
             {
                 conn.Open();
                 cmd.Connection = conn;
