@@ -29,9 +29,17 @@ namespace CPUFramework
             {
                 conn.Open();
                 cmd.Connection = conn;
-                                Debug.Print(GetSQL(cmd));
-                SqlDataReader dr = cmd.ExecuteReader();
-                dt.Load(dr);
+                Debug.Print(GetSQL(cmd));
+                try
+                {
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    dt.Load(dr);
+                }
+                catch(SqlException ex)
+                {
+                    string msg = ParseConstraintMessage(ex.Message);
+                    throw new Exception(msg);
+                }
             }
             SetAllColumnsAllowNull(dt);
             return dt;
@@ -107,6 +115,43 @@ namespace CPUFramework
             val = sb.ToString();
 #endif
             return val;
+        }
+
+        public static string ParseConstraintMessage(string msg)
+        {
+            string origmsg = msg;
+            string prefix = "ck_";
+            string msgend = "";
+            if (msg.Contains(prefix) == false)
+            {
+                if (msg.Contains("u_"))
+                {
+                    prefix = "u_";
+                    msgend = " must be unique.";
+                }
+                else if (msg.Contains("f_"))
+                {
+                    prefix = "f_";
+                }
+            }
+            if (msg.Contains(prefix))
+            {
+                msg = msg.Replace("\"", "'");
+                int pos = msg.IndexOf(prefix) + prefix.Length;
+                msg = msg.Substring(pos);
+                pos = msg.IndexOf("'");
+                if (pos == -1)
+                {
+                    msg = origmsg;
+                }
+                else
+                {
+                    msg = msg.Substring(0, pos);
+                    msg = msg.Replace("_", " ");
+                    msg = msg + msgend;
+                }
+            }
+            return msg;
         }
 
         public static void DebugPrintDataTable(DataTable dt)
