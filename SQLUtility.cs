@@ -47,7 +47,7 @@ namespace CPUFramework
                     string colname = p.ParameterName.Substring(1);
                     if (row.Table.Columns.Contains(colname))
                     {
-                        row.Table.Columns["Presidentid"].ReadOnly = false;
+                        row.Table.Columns[sprocname == "RecipeUpdate" ? "RecipeId":"Presidentid"].ReadOnly = false;
                         row[colname] = p.Value;
                     }
                 }
