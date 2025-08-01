@@ -30,7 +30,7 @@ namespace CPUFramework
         public static void SaveDataRow(DataRow row, string sprocname)
         {
             SqlCommand cmd = GetSQLCommand(sprocname);
-            foreach(DataColumn col in row.Table.Columns)
+            foreach (DataColumn col in row.Table.Columns)
             {
                 string paramname = $"@{col.ColumnName}";
                 if (cmd.Parameters.Contains(paramname))
@@ -39,7 +39,6 @@ namespace CPUFramework
                 }
             }
             DoExecuteSQL(cmd, false);
-
             foreach (SqlParameter p in cmd.Parameters)
             {
                 if (p.Direction == ParameterDirection.InputOutput)
@@ -47,11 +46,12 @@ namespace CPUFramework
                     string colname = p.ParameterName.Substring(1);
                     if (row.Table.Columns.Contains(colname))
                     {
-                        row.Table.Columns[sprocname == "RecipeUpdate" ? "RecipeId":"Presidentid"].ReadOnly = false;
+                        row.Table.Columns[sprocname == "RecipeUpdate" ? "RecipeId" : "Presidentid"].ReadOnly = false;
                         row[colname] = p.Value;
                     }
                 }
             }
+            row.Table.AcceptChanges();
         }
 
         private static DataTable DoExecuteSQL(SqlCommand cmd, bool loadtable)
@@ -172,7 +172,7 @@ namespace CPUFramework
         public static int GetValueFromFirstRowAsInt(DataTable dt, string columnname)
         {
             int value = 0;
-            if(dt.Rows.Count > 0)
+            if (dt.Rows.Count > 0)
             {
                 DataRow r = dt.Rows[0];
                 if (r[columnname] != null && r[columnname] is int)
@@ -195,6 +195,16 @@ namespace CPUFramework
                 }
             }
             return value;
+        }
+
+        public static bool TableHasChanges(DataTable dt)
+        {
+            bool b = false;
+            if (dt.GetChanges() != null)
+            {
+                b = true;
+            }
+            return b;
         }
 
         public static string GetSQL(SqlCommand cmd)
@@ -242,6 +252,7 @@ namespace CPUFramework
             string origmsg = msg;
             string prefix = "ck_";
             string msgend = "";
+            string notnullprefix = "Cannot insert the value NULL into column '";
             if (msg.Contains(prefix) == false)
             {
                 if (msg.Contains("u_"))
@@ -252,6 +263,11 @@ namespace CPUFramework
                 else if (msg.Contains("f_"))
                 {
                     prefix = "f_";
+                }
+                else if (msg.Contains(notnullprefix))
+                {
+                    prefix = notnullprefix;
+                    msgend = " cannot be blank.";
                 }
             }
             if (msg.Contains(prefix))
