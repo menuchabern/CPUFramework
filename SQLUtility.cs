@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Data;
 using System.Text;
-using System.Net.NetworkInformation;
 
 namespace CPUFramework
 {
@@ -56,10 +55,6 @@ namespace CPUFramework
                     string colname = p.ParameterName.Substring(1);
                     if (row.Table.Columns.Contains(colname))
                     {
-                        //foreach (DataColumn c in row.Table.Columns)
-                        //{
-                        //    c.ReadOnly = false;
-                        //}
                         row[colname] = p.Value;
                     }
                 }
@@ -326,6 +321,13 @@ namespace CPUFramework
                     Debug.Print(c.ColumnName + " = " + r[c.ColumnName].ToString());
                 }
             }
+        }
+
+        public static DataTable GetDataTableForList(string sprocname)
+        {
+            SqlCommand cmd = GetSQLCommand(sprocname);
+            SetParamValue(cmd, "@All", 1);
+            return GetDataTable(cmd);
         }
     }
 }
