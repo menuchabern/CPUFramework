@@ -9,7 +9,7 @@ namespace CPUFramework
     {
         public static string ConnectionString = "";
 
-        public static SqlCommand GetSQLCommand(string sprocname)
+        public static SqlCommand GetSQLCommand(string sprocname, bool deriverparam = true)
         {
             SqlCommand cmd = new();
             using (SqlConnection conn = new SqlConnection(ConnectionString))
@@ -17,10 +17,14 @@ namespace CPUFramework
                 cmd = new(sprocname, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 conn.Open();
-                SqlCommandBuilder.DeriveParameters(cmd);
+                if (deriverparam == true)
+                {
+                    SqlCommandBuilder.DeriveParameters(cmd);
+                }
             }
             return cmd;
         }
+
         public static DataTable GetDataTable(SqlCommand cmd)
         {
             return DoExecuteSQL(cmd, true);
@@ -29,7 +33,7 @@ namespace CPUFramework
         public static void SaveDataTable(DataTable dt, string sprocname)
         {
             var rows = dt.Select("", "", DataViewRowState.Added | DataViewRowState.ModifiedCurrent);
-            foreach(DataRow r in rows)
+            foreach (DataRow r in rows)
             {
                 SaveDataRow(r, sprocname, false);
             }
@@ -156,6 +160,14 @@ namespace CPUFramework
             {
                 throw new Exception(cmd.CommandText + ": " + ex.Message, ex);
             }
+        }
+
+        public static SqlParameter SetOutputParameter(SqlCommand cmd, string paramname, object value)
+        {
+            SqlParameter param = new SqlParameter(paramname, value);
+            param.Direction = ParameterDirection.InputOutput;
+            cmd.Parameters.Add(param);
+            return param;
         }
 
         public static int GetFirstColumnFirstRowValue(string sql)
