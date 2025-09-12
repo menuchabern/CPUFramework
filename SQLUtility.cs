@@ -222,6 +222,16 @@ namespace CPUFramework
             return value;
         }
 
+        public static DataTable GetList(string sprocname, bool includeblank = false)
+        {
+            DataTable dt = new();
+            SqlCommand cmd = GetSQLCommand(sprocname);
+            SetParamValue(cmd, "@All", 1);
+            SetParamValue(cmd, "@includeblank", includeblank);
+            dt = GetDataTable(cmd);
+            return dt;
+        }
+
         public static bool TableHasChanges(DataTable dt)
         {
             bool b = false;
