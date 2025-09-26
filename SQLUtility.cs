@@ -344,13 +344,5 @@ namespace CPUFramework
                 }
             }
         }
-
-        public static DataTable GetDataTableForList(string sprocname, int includeblank)
-        {
-            SqlCommand cmd = GetSQLCommand(sprocname);
-            SetParamValue(cmd, "@All", 1);
-            SetParamValue(cmd, "@IncludeBlank", 1);
-            return GetDataTable(cmd);
-        }
     }
 }
