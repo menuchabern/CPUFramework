@@ -7,7 +7,27 @@ namespace CPUFramework
 {
     public class SQLUtility
     {
-        public static string ConnectionString = "";
+        private static string ConnectionString = "";
+
+        public static void SetConnectionString(string connstring, bool tryopen, string userid = "", string password = "")
+        {
+            ConnectionString = connstring;
+            if(userid != "")
+            {
+                SqlConnectionStringBuilder b = new();
+                b.ConnectionString = ConnectionString;
+                b.UserID = userid;
+                b.Password = password;
+                ConnectionString = b.ConnectionString;
+            }
+            if (tryopen)
+            {
+                using(SqlConnection conn = new(ConnectionString))
+                {
+                    conn.Open();
+                }
+            }
+        }
 
         public static SqlCommand GetSQLCommand(string sprocname, bool deriverparam = true)
         {
@@ -249,7 +269,7 @@ namespace CPUFramework
             StringBuilder sb = new();
             if (cmd.Connection != null)
             {
-                sb.AppendLine($"-- {cmd.Connection.ConnectionString}");
+                //sb.AppendLine($"-- {cmd.Connection.ConnectionString}");
                 sb.AppendLine($"-- {cmd.Connection.DataSource}");
                 sb.AppendLine($"use {cmd.Connection.Database}");
                 sb.AppendLine("go");
