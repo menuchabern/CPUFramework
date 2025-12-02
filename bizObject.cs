@@ -52,12 +52,30 @@ namespace CPUFramework
             }
         }
 
-        public void Delete(DataTable datatable)
+        public void Delete(int id)
         {
-            int id = (int)datatable.Rows[0][_primarykeyname];
             SqlCommand cmd = SQLUtility.GetSQLCommand(_deletesproc);
             SQLUtility.SetParamValue(cmd, _primarykeyparamname, id);
             SQLUtility.ExecuteSQL(cmd);
+        }
+
+        public void Delete()
+        {
+            PropertyInfo? prop = GetProp(_primarykeyname, true, false);
+            if (prop != null)
+            {
+                object? id = prop.GetValue(this);
+                if (id != null)
+                {
+                    this.Delete((int)id);
+                }
+            }
+        }
+
+        public void Delete(DataTable datatable)
+        {
+            int id = (int)datatable.Rows[0][_primarykeyname];
+            this.Delete(id);
         }
 
         public void Save()
@@ -112,9 +130,9 @@ namespace CPUFramework
         private void SetProp(string propname, object? value)
         {
             var prop = GetProp(propname, false, true);
-            if(prop != null)
+            if (prop != null)
             {
-                if(value == DBNull.Value)
+                if (value == DBNull.Value)
                 {
                     value = null;
                 }
