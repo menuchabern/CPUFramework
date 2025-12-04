@@ -139,6 +139,10 @@ namespace CPUFramework
                 }
                 try
                 {
+                    if (prop.PropertyType == typeof(DateOnly) && value is DateTime dt)
+                    {
+                        value = DateOnly.FromDateTime(dt);
+                    }
                     prop.SetValue(this, value);
                 }
                 catch (Exception ex)
