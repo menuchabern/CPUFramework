@@ -12,7 +12,7 @@ namespace CPUFramework
         public static void SetConnectionString(string connstring, bool tryopen, string userid = "", string password = "")
         {
             ConnectionString = connstring;
-            if(userid != "")
+            if (userid != "")
             {
                 SqlConnectionStringBuilder b = new();
                 b.ConnectionString = ConnectionString;
@@ -22,7 +22,7 @@ namespace CPUFramework
             }
             if (tryopen)
             {
-                using(SqlConnection conn = new(ConnectionString))
+                using (SqlConnection conn = new(ConnectionString))
                 {
                     conn.Open();
                 }
@@ -172,6 +172,7 @@ namespace CPUFramework
 
         public static void SetParamValue(SqlCommand cmd, string paramname, object value)
         {
+            if (paramname.StartsWith("@") == false) { paramname = "@" + paramname; }
             try
             {
                 cmd.Parameters[paramname].Value = value;
